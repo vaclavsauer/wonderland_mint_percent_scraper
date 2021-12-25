@@ -148,26 +148,25 @@ def run(driver):
             data[key][2],
         ]
 
-    query_data = [(
-        datetime.datetime.utcnow(),
-        treasury_balance,
-        time_price,
-
-        # MIM
-        data["MIM"][0],
-        data["MIM"][1],
-        data["MIM"][2],
-
-        # TIME-MIM
-        data["TIME-MIM LP"][0],
-        data["TIME-MIM LP"][1],
-        data["TIME-MIM LP"][2],
-
-        # wETH.e
-        data["wETH.e"][0],
-        data["wETH.e"][1],
-        data["wETH.e"][2],
-    )]
+    query_data = [
+        (
+            datetime.datetime.utcnow(),
+            treasury_balance,
+            time_price,
+            # MIM
+            data["MIM"][0],
+            data["MIM"][1],
+            data["MIM"][2],
+            # TIME-MIM
+            data["TIME-MIM LP"][0],
+            data["TIME-MIM LP"][1],
+            data["TIME-MIM LP"][2],
+            # wETH.e
+            data["wETH.e"][0],
+            data["wETH.e"][1],
+            data["wETH.e"][2],
+        )
+    ]
 
     result = [str(r) for r in result]
     print("\t".join(result))

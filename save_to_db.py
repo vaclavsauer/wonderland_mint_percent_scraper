@@ -28,22 +28,30 @@ con = sl.connect(database)
 
 
 with con:
-    con.execute("""
+    con.execute(
+        """
         ALTER TABLE time_mint ADD COLUMN weth_price FLOAT;
-    """)
-    con.execute("""
+    """
+    )
+    con.execute(
+        """
         ALTER TABLE time_mint ADD COLUMN weth_roi FLOAT;
-    """)
-    con.execute("""
+    """
+    )
+    con.execute(
+        """
         ALTER TABLE time_mint ADD COLUMN weth_purchased INT;
-    """)
+    """
+    )
 
 exit()
 
 with con:
-    con.execute("""
+    con.execute(
+        """
         DELETE FROM time_mint;
-    """)
+    """
+    )
 
 with open(filename) as f:
     reader = csv.reader(f)
@@ -51,24 +59,20 @@ with open(filename) as f:
     for index, row in enumerate(reader):
         if index == 0:
             continue
-        
+
         processed_row = (
             datetime.strptime(row[0], "%d.%m.%Y %H:%M:%S.%f"),
             int(row[1]),
             float(row[2]),
-
             # float(row[3]), # AVAX
             # float(row[4]),
             # int(row[5]),
-            
             float(row[6]) if len(row) > 6 else None,  # MIM
             float(row[7]) if len(row) > 6 else None,
             int(row[8]) if len(row) > 6 else None,
-            
             # float(row[9]), # TIME-AVAX
             # float(row[10]),
             # int(row[11]),
-            
             float(row[12]) if len(row) > 6 else None,  # TIME-MIM
             float(row[13]) if len(row) > 6 else None,
             int(row[14]) if len(row) > 6 else None,
@@ -92,4 +96,3 @@ with open(filename) as f:
     """
     with con:
         con.executemany(sql, data)
-
