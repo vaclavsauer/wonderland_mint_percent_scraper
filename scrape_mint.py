@@ -16,12 +16,14 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 COUNTDOWN = 5
+
 SKIP_WAIT = False
 # SKIP_WAIT = True
-SAVE_TO_DB = True
-# SAVE_TO_DB = False
 
-SCRAPED_POOLS = ["MIM", "TIME-MIM LP", "wETH.e"]
+# SAVE_TO_DB = False
+SAVE_TO_DB = True
+
+SCRAPED_POOLS = ["MIM", "wETH.e", "wMEMO-MIM SLP"]
 DB = "output.db"
 
 con = sqlite3.connect(DB)
@@ -119,12 +121,15 @@ def run(driver):
             del line_values[1]
 
         try:
-            mint = line_values[0].text  # 'TIME-MIM LP', 'MIM', 'wETH.e'
+            mint = line_values[
+                0
+            ].text  # 'TIME-MIM LP', 'MIM', 'wETH.e', 'wMEMO-MIM SLP'
             price = float(line_values[1].text.split("\n")[-1:][0])  # '$\n8204.71'
             roi = float(line_values[2].text.replace("%", ""))  # '7.89%'
             purchased = int(
                 line_values[3].text.replace(",", "").replace("$", "")
             )  # '$72,201,709'
+
         except Exception:
             print(
                 f"ℹ️️{line_values[0].text}|{line_values[1].text}|{line_values[2].text}|{line_values[3].text}"
@@ -165,6 +170,10 @@ def run(driver):
             data["wETH.e"][0],
             data["wETH.e"][1],
             data["wETH.e"][2],
+            # wMEMO-MIM SLP
+            data["wMEMO-MIM SLP"][0],
+            data["wMEMO-MIM SLP"][1],
+            data["wMEMO-MIM SLP"][2],
         )
     ]
 
@@ -187,9 +196,13 @@ def run(driver):
 
             weth_price, 
             weth_roi, 
-            weth_purchased
+            weth_purchased, 
+
+            wmemo_mim_price, 
+            wmemo_mim_roi, 
+            wmemo_mim_purchased
             ) 
-        values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     """
 
     if SAVE_TO_DB:
@@ -228,7 +241,6 @@ def countdown(echo_time):
     print("Working... 💸💵💸")
 
 
-# Welcome sound
 print("❤️ Welcome ❤️")
 
 # Load driver
@@ -269,7 +281,7 @@ try:
         time.sleep(
             60.0
             - datetime.datetime.utcnow().second
-            + datetime.datetime.utcnow().microsecond / 1000000
+            - datetime.datetime.utcnow().microsecond / 1000000
         )
 finally:
     driver.quit()

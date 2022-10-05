@@ -14,32 +14,6 @@ database = "output.db"
 con = sqlite3.connect(database)
 df = pd.read_sql_query("SELECT * from time_mint", con)
 
-# limits = con.execute(
-#     """
-#         select
-#             max(
-#                 max(coalesce(time_price, 0)),
-#                 max(coalesce(mim_price, 0)),
-#                 max(coalesce(time_mim_price, 0))
-#             ) as price_max,
-#             min(
-#                 min(time_price),
-#                 min(mim_price),
-#                 min(time_mim_price)
-#             ) as price_min,
-#             max(
-#                 max(coalesce(mim_roi, 0)),
-#                 max(coalesce(time_mim_roi, 0))
-#             ) as roi_max,
-#             min(
-#                 min(mim_roi),
-#                 min(time_mim_roi)
-#             ) as roi_min
-#         from time_mint where "timestamp" > :timestamp
-#     """,
-#     {"timestamp": (datetime.utcnow() - timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S.%f")}
-# ).fetchone()
-
 min_limits = df[
     df["timestamp"]
     > (datetime.utcnow() - timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S.%f")
@@ -67,6 +41,7 @@ fig.update_layout(
                 min_limits["mim_price"],
                 min_limits["time_mim_price"],
                 min_limits["weth_price"],
+                min_limits["wmemo_mim_price"],
             )
             * 0.9,
             max(
@@ -74,6 +49,7 @@ fig.update_layout(
                 max_limits["mim_price"],
                 max_limits["time_mim_price"],
                 min_limits["weth_price"],
+                min_limits["wmemo_mim_price"],
             )
             * 1.1,
         ]
@@ -84,12 +60,14 @@ fig.update_layout(
                 min_limits["mim_roi"],
                 min_limits["time_mim_roi"],
                 min_limits["weth_roi"],
+                min_limits["wmemo_mim_roi"],
             )
             * 0.9,
             max(
                 max_limits["mim_roi"],
                 max_limits["time_mim_roi"],
                 min_limits["weth_roi"],
+                min_limits["wmemo_mim_roi"],
             )
             * 1.1,
         ]
@@ -113,13 +91,17 @@ fig.add_trace(
 )
 
 fig.add_trace(
-    go.Scatter(x=df["timestamp"], y=df["time_mim_price"], name="TIME-MIM price"),
+    go.Scatter(x=df["timestamp"], y=df["time_mim_price"], name="TIME-MIM LP price"),
     row=1,
     col=1,
 )
 
 fig.add_trace(
     go.Scatter(x=df["timestamp"], y=df["weth_price"], name="wETH.e price"), row=1, col=1
+)
+
+fig.add_trace(
+    go.Scatter(x=df["timestamp"], y=df["wmemo_mim_price"], name="wMEMO-MIM SLP price"), row=1, col=1
 )
 
 # ROI
@@ -129,13 +111,17 @@ fig.add_trace(
 )
 
 fig.add_trace(
-    go.Scatter(x=df["timestamp"], y=df["time_mim_roi"], name="TIME-MIM ROI"),
+    go.Scatter(x=df["timestamp"], y=df["time_mim_roi"], name="TIME-MIM LP ROI"),
     row=2,
     col=1,
 )
 
 fig.add_trace(
     go.Scatter(x=df["timestamp"], y=df["weth_roi"], name="wETH.e ROI"), row=2, col=1
+)
+
+fig.add_trace(
+    go.Scatter(x=df["timestamp"], y=df["wmemo_mim_roi"], name="wMEMO-MIM SLP ROI"), row=2, col=1
 )
 
 # balance
@@ -162,6 +148,12 @@ fig.add_trace(
 
 fig.add_trace(
     go.Scatter(x=df["timestamp"], y=df["weth_purchased"], name="wETH.e Purchased"),
+    row=3,
+    col=1,
+)
+
+fig.add_trace(
+    go.Scatter(x=df["timestamp"], y=df["wmemo_mim_purchased"], name="wMEMO-MIM SLP Purchased"),
     row=3,
     col=1,
 )
